@@ -20,9 +20,9 @@ use App\Http\Middleware\AdminMiddleware;
 Route::get('auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'callback']);
 Route::get('/mobile/login', [GoogleController::class, 'login']);
-Route::get('/', function () {
-    return redirect('/dashboard');
-});
+Route::get('/docs', function () {
+    return view('docs.index');
+})->name('docs.index');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

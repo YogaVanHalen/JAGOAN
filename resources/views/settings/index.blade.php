@@ -79,6 +79,20 @@
             <span class="text-slate-400 text-sm font-bold group-hover:translate-x-1 transition-transform">→</span>
         </a>
 
+        <!-- 4. Panduan Penggunaan & Dokumentasi -->
+        <a href="{{ route('docs.index') }}" class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-500/40 dark:hover:border-emerald-500/40 transition group">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition-transform">
+                    📖
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Panduan & Dokumentasi Aplikasi</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Petunjuk langkah demi langkah penggunaan fitur JAGOAN</p>
+                </div>
+            </div>
+            <span class="text-slate-400 text-sm font-bold group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+
         <!-- 4. Edit Profil -->
         <a href="{{ route('profile.edit') }}" class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-500/40 dark:hover:border-indigo-500/40 transition group">
             <div class="flex items-center gap-3.5">

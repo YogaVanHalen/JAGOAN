@@ -29,6 +29,63 @@
 
 ---
 
+## 📖 Panduan Penggunaan Aplikasi (User Manual)
+
+Halaman dokumentasi interaktif bawaan dapat diakses langsung melalui aplikasi pada menu **Setting (⚙️) -> Panduan & Dokumentasi** atau membuka URL `http://domain-anda.com/docs`.
+
+### 📂 1. Menambahkan & Mengelola Kategori Transaksi
+1. Buka menu **Setting (⚙️)** pada navigasi bawah, lalu pilih **Kelola Kategori**.
+2. Klik **+ Tambah Kategori**.
+3. Isi Nama Kategori (misal: *Gaji, Makanan, Transportasi, Listrik*).
+4. Pilih Tipe: **Pemasukan** (hijau) atau **Pengeluaran** (merah).
+5. Pilih ikon & warna label, lalu simpan.
+   > *Sistem secara otomatis menyaring kategori sesuai jenis formulir transaksi yang sedang dibuka.*
+
+### 💳 2. Menambahkan Rekening & Dompet
+1. Buka menu **Rekening** pada navigasi bawah.
+2. Klik **+ Tambah Rekening**.
+3. Pilih Tipe Rekening:
+   - **Bank / Tunai / E-Wallet:** Untuk rekening ber-saldo positif (BCA, Mandiri, Cash, GoPay).
+   - **Kartu Kredit:** Untuk mencatat limit kredit, jatuh tempo, dan bunga bulanan.
+4. Masukkan Saldo Awal dan simpan.
+
+### 📥 3. Menambahkan Transaksi Pemasukan
+1. Klik menu **Masuk** pada navigasi bawah.
+2. Klik **+ Tambah Pemasukan**.
+3. Ketik Nominal. *(Contoh: Pengetikan `1000000` akan otomatis terformat menjadi `1.000.000`)*.
+4. Pilih Kategori Pemasukan dan Rekening Tujuan penerima dana.
+5. Pilih Tanggal & beri Catatan (opsional), lalu klik Simpan.
+
+### 📤 4. Menambahkan Transaksi Pengeluaran
+1. Klik menu **Keluar** pada navigasi bawah.
+2. Klik **+ Tambah Pengeluaran**.
+3. Ketik Nominal (otomatis terformat titik ribuan).
+4. Pilih Kategori Pengeluaran & Rekening Sumber Dana yang digunakan.
+5. Klik Simpan. Saldo rekening sumber dana akan berkurang secara otomatis.
+
+### 🤝 5. Mengelola Hutang & Piutang
+1. Buka menu **Hutang** pada navigasi bawah.
+2. Pilih Tipe: **Hutang Saya** (pinjaman yang wajib kita bayar) atau **Piutang** (uang kita yang dipinjam orang lain).
+3. Masukkan total nominal, nama orang/instansi, dan tanggal jatuh tempo.
+4. Klik tombol **Bayar** saat melakukan cicilan atau pelunasan.
+
+### 🎯 6. Target Keuangan (Goals)
+1. Klik menu **Goals** pada navigasi bawah -> **+ Buat Target Baru**.
+2. Isi Nama Target (misal: *Dana Darurat, Tabungan Umroh*), target nominal, dan tanggal target.
+3. Klik **Setor Dana** setiap kali menambah tabungan hingga indikator progress mencapai 100%.
+
+### 👥 7. Mengundang & Mengelola Anggota Keluarga (Shared Wallet)
+1. Buka menu **Setting (⚙️)** -> **Anggota & Share Wallet**.
+2. Klik **+ Tambah Anggota Keluarga**.
+3. Masukkan Username / Email anggota keluarga. Anggota yang ditambahkan akan dapat mencatat transaksi pada dompet bersama yang dibagikan.
+
+### 📥 8. Backup & Import Data Excel (Dengan Persetujuan)
+1. Buka menu **Setting (⚙️)** -> **Backup & Import Data**.
+2. **Unduh Master Excel:** 1-klik unduh seluruh data Pemasukan, Pengeluaran, Rekening, Kategori, Hutang, & Target Finansial.
+3. **Import Data:** Pilih file Excel transaksi -> Klik Upload -> Tinjau modal peringatan persetujuan jumlah data saat ini vs data baru -> Klik Setujui & Impor.
+
+---
+
 ## 🌐 Panduan Lengkap Instalasi & Update di aaPanel
 
 Aplikasi ini dapat diinstal langsung di **Root Domain** aaPanel tanpa subfolder.
