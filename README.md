@@ -106,41 +106,29 @@ Aplikasi ini dapat diinstal langsung di **Root Domain** aaPanel tanpa subfolder.
 
 ---
 
-### 📥 3. Clone Kode dari GitHub
-Buka **Terminal SSH** di aaPanel, masuk ke folder situs Anda, hapus file bawaan aaPanel (`index.html`, `.user.ini`), lalu jalankan clone:
+### ⚡ 3. Instalasi Otomatis (1 Perintah Cepat)
+Setelah menambah domain di aaPanel, buka **Terminal SSH** di aaPanel, masuk ke folder domain Anda, dan jalankan perintah 1 baris berikut:
 
 ```bash
-cd /www/wwwroot/fh.belivoucher.my.id
-chattr -i .user.ini 2>/dev/null
-rm -rf index.html 404.html .user.ini .htaccess default
-git clone https://github.com/YogaVanHalen/JAGOAN.git .
+cd /www/wwwroot/domain-anda.com && curl -sSL https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh | bash -s admin@email.com
 ```
 
-> 💡 **Metode Alternatif (Jika `git clone .` gagal / Folder Sudah Terisi):**
-> Anda juga bisa menggunakan `git init` berikut (tidak akan error meskipun folder ada isinya):
-> ```bash
-> cd /www/wwwroot/fh.belivoucher.my.id
-> chattr -i .user.ini 2>/dev/null
-> git init
-> git remote add origin https://github.com/YogaVanHalen/JAGOAN.git 2>/dev/null || git remote set-url origin https://github.com/YogaVanHalen/JAGOAN.git
-> git fetch origin main
-> git checkout -B main origin/main -f
-> ```
+*Atau jika menggunakan `wget`:*
+```bash
+cd /www/wwwroot/domain-anda.com && wget -O install.sh https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh && bash install.sh admin@email.com
+```
+
+> 💡 **Apa yang dilakukan skrip di atas secara otomatis?**
+> 1. Membersihkan file bawaan aaPanel (`index.html`, `.user.ini`, dll).
+> 2. Mengunduh / Clone kode aplikasi **JAGOAN** dari GitHub secara otomatis.
+> 3. Menyiapkan file `.env`, kredensial database, dan dependensi Composer.
+> 4. Membuat Aplikasi Key Laravel, migrasi database & seeding data awal.
+> 5. Mengatur email Admin ke email yang Anda masukkan (default: `admin@email.com`).
+> 6. Mengatur izin folder `storage`, `database`, `bootstrap/cache` & membersihkan cache.
 
 ---
 
-### ⚡ 4. Jalankan Skrip Instalasi Otomatis
-Di Terminal SSH aaPanel, jalankan:
-
-```bash
-bash install-aapanel.sh admin@email.com
-```
-
-Skrip ini akan secara otomatis mendeteksi jika instalasi dilakukan dari subfolder (misal `git clone` tanpa titik), memindahkan seluruh file ke Root Domain jika diperlukan, menyiapkan `.env`, memasang dependensi composer, menjalankan migrasi database, membuat akun Admin, serta mengonfigurasi izin folder `storage` & `bootstrap/cache`.
-
----
-
-### ⚙️ 5. Konfigurasi Running Directory & Nginx Rewrite
+### ⚙️ 4. Konfigurasi Running Directory & Nginx Rewrite di aaPanel
 1. Di aaPanel -> **Website** -> Klik domain Anda.
 2. Tab **Site directory**:
    - Set **Running directory** ke **/public** (*Sangat Penting!*).
@@ -150,12 +138,16 @@ Skrip ini akan secara otomatis mendeteksi jika instalasi dilakukan dari subfolde
 
 ---
 
-### 🔄 Perintah Update Otomatis (Saat ada Fitur Baru)
+### 🔄 Perintah Update Otomatis 1-Line (Saat Ada Fitur Baru)
 
-Untuk memperbarui aplikasi tanpa menghapus data yang ada, jalankan perintah ini di Terminal SSH aaPanel:
+Untuk memperbarui aplikasi ke versi terbaru tanpa menghapus data database yang sudah ada, jalankan perintah ini di Terminal SSH aaPanel:
 
 ```bash
-cd /www/wwwroot/fh.belivoucher.my.id
+cd /www/wwwroot/domain-anda.com && curl -sSL https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/update-aapanel.sh | bash
+```
+
+*Atau jika sudah berada di dalam folder projek di Terminal:*
+```bash
 bash update-aapanel.sh
 ```
 

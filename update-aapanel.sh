@@ -9,7 +9,11 @@ echo "   MEMULAI PROSES UPDATE APLIKASI JAGOAN               "
 echo "======================================================="
 
 # Dapatkan lokasi script saat ini
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "${BASH_SOURCE[0]}" ] && [ "${BASH_SOURCE[0]}" != "-" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
+else
+    SCRIPT_DIR="$(pwd)"
+fi
 cd "$SCRIPT_DIR" || exit 1
 
 PROJECT_DIR="$SCRIPT_DIR"

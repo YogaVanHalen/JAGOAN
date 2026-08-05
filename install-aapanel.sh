@@ -9,13 +9,27 @@ echo "   MEMULAI INSTALASI OTOMATIS APLIKASI JAGOAN        "
 echo "======================================================="
 
 # Dapatkan lokasi script saat ini
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "${BASH_SOURCE[0]}" ] && [ "${BASH_SOURCE[0]}" != "-" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
+else
+    SCRIPT_DIR="$(pwd)"
+fi
 PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 CURRENT_FOLDER="$(basename "$SCRIPT_DIR")"
 
 # Hapus file placeholder bawaan aaPanel jika ada di folder saat ini
 chattr -i .user.ini public/.user.ini 2>/dev/null
 rm -f index.html 404.html .user.ini public/.user.ini 2>/dev/null
+
+# 0. Jika file artisan belum ada di folder saat ini maupun parent, lakukan Auto-Clone dari GitHub
+if [ ! -f "artisan" ] && [ ! -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
+    echo "📥 Projek JAGOAN belum ditemukan di folder ini."
+    echo "📦 Memulai Git Clone otomatis dari GitHub (YogaVanHalen/JAGOAN)..."
+    git init 2>/dev/null
+    git remote add origin https://github.com/YogaVanHalen/JAGOAN.git 2>/dev/null || git remote set-url origin https://github.com/YogaVanHalen/JAGOAN.git
+    git fetch origin main
+    git checkout -B main origin/main -f
+fi
 
 # Jika script dijalankan dari dalam subfolder (misal subfolder "JAGOAN" atau nama lain)
 # dan folder parent belum memiliki file artisan (bukan root Laravel), pindahkan ke Root Domain
