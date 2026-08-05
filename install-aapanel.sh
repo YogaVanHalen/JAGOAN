@@ -32,8 +32,8 @@ if [ ! -f "artisan" ] && [ ! -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/a
 fi
 
 # Jika script dijalankan dari dalam subfolder (misal subfolder "JAGOAN" atau nama lain)
-# dan folder parent belum memiliki file artisan (bukan root Laravel), pindahkan ke Root Domain
-if [ "$SCRIPT_DIR" != "$PARENT_DIR" ] && [ -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
+# dan folder parent bukan /www/wwwroot dan belum memiliki file artisan, pindahkan ke Root Domain
+if [ "$SCRIPT_DIR" != "$PARENT_DIR" ] && [ "$PARENT_DIR" != "/www/wwwroot" ] && [ "$PARENT_DIR" != "/www/wwwroot/" ] && [ -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
     echo "📁 Mendeteksi script dijalankan dari subfolder '$CURRENT_FOLDER'."
     echo "🚚 Memindahkan seluruh isi ke Root Domain ($PARENT_DIR)..."
     
