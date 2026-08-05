@@ -16,7 +16,15 @@ else
 fi
 cd "$SCRIPT_DIR" || exit 1
 
-PROJECT_DIR="$SCRIPT_DIR"
+CURRENT_PWD="$(pwd)"
+if [ "$CURRENT_PWD" == "/www/wwwroot" ] || [ "$CURRENT_PWD" == "/www/wwwroot/" ]; then
+    echo "❌ [SAFETY SHIELD ABORTED] Script update tidak boleh dijalankan langsung di /www/wwwroot!"
+    echo " Silakan masuk ke folder domain Anda terlebih dahulu, contoh:"
+    echo "   cd /www/wwwroot/sub.domain.com && bash update-aapanel.sh"
+    exit 1
+fi
+
+PROJECT_DIR="$CURRENT_PWD"
 echo "📍 Lokasi Projek: $PROJECT_DIR"
 
 # Bypass Composer superuser warning & Git dubious ownership warning

@@ -8,50 +8,73 @@ echo "======================================================="
 echo "   MEMULAI INSTALASI OTOMATIS APLIKASI JAGOAN        "
 echo "======================================================="
 
-# Dapatkan lokasi script saat ini
-if [ -n "${BASH_SOURCE[0]}" ] && [ "${BASH_SOURCE[0]}" != "-" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
+# Parameters input
+# Argument 1: Domain/Subdomain Name (e.g. sub.domain.com) atau Email Admin jika di dalam folder domain
+# Argument 2: Email Admin (e.g. admin@email.com)
+ARG_1="$1"
+ARG_2="$2"
+
+CURRENT_PWD="$(pwd)"
+CURRENT_BASENAME="$(basename "$CURRENT_PWD")"
+
+# 1. Tentukan Nama Domain / Subdomain Target
+if [ -n "$ARG_1" ] && [[ "$ARG_1" == *"."* ]]; then
+    DOMAIN_NAME="$ARG_1"
+    ADMIN_EMAIL="${ARG_2:-admin@email.com}"
+elif [ "$CURRENT_BASENAME" != "wwwroot" ] && [[ "$CURRENT_BASENAME" == *"."* ]]; then
+    DOMAIN_NAME="$CURRENT_BASENAME"
+    ADMIN_EMAIL="${ARG_1:-admin@email.com}"
 else
-    SCRIPT_DIR="$(pwd)"
+    # Jika dijalankan secara interaktif dan belum ada domain, minta input manual
+    if [ -t 0 ]; then
+        echo -n "📝 Masukkan Nama Domain / Subdomain Anda (contoh: sub.domain.com): "
+        read DOMAIN_NAME
+        ADMIN_EMAIL="${ARG_1:-admin@email.com}"
+    else
+        DOMAIN_NAME="$ARG_1"
+        ADMIN_EMAIL="${ARG_2:-admin@email.com}"
+    fi
 fi
-PARENT_DIR="$(dirname "$SCRIPT_DIR")"
-CURRENT_FOLDER="$(basename "$SCRIPT_DIR")"
 
-# Hapus file placeholder bawaan aaPanel jika ada di folder saat ini
+# Validasi wajib Nama Domain
+if [ -z "$DOMAIN_NAME" ] || [ "$DOMAIN_NAME" == "wwwroot" ]; then
+    echo "❌ [SAFETY BLOCKED] Nama domain/subdomain wajib diisi!"
+    echo "Penggunaan yang benar:"
+    echo "  bash install-aapanel.sh <nama-domain> [email-admin]"
+    echo "Contoh:"
+    echo "  bash install-aapanel.sh sub.domain.com admin@email.com"
+    exit 1
+fi
+
+# 2. Penentuan & Penguncian Folder Target Instalasi
+TARGET_DIR="/www/wwwroot/$DOMAIN_NAME"
+
+# Buat folder jika belum ada dan masuk ke dalamnya
+mkdir -p "$TARGET_DIR"
+cd "$TARGET_DIR" || exit 1
+PROJECT_DIR="$TARGET_DIR"
+
+# 🔒 PERLINDUNGAN KETAT (SAFETY SHIELD): Pastikan TIDAK BERADA di /www/wwwroot langsung
+if [ "$PROJECT_DIR" == "/www/wwwroot" ] || [ "$PROJECT_DIR" == "/www/wwwroot/" ]; then
+    echo "❌ [SAFETY SHIELD ABORTED] Script menolak berjalan di root container /www/wwwroot!"
+    exit 1
+fi
+
+echo "📍 Target Instalasi Terverifikasi Aman:"
+echo "   - Domain / Subdomain: $DOMAIN_NAME"
+echo "   - Folder Lokasi    : $PROJECT_DIR"
+
+# 3. Bersihkan file bawaan aaPanel di folder target domain
 chattr -i .user.ini public/.user.ini 2>/dev/null
-rm -f index.html 404.html .user.ini public/.user.ini 2>/dev/null
+rm -f index.html 404.html .user.ini public/.user.ini default 2>/dev/null
 
-# 0. Jika file artisan belum ada di folder saat ini maupun parent, lakukan Auto-Clone dari GitHub
-if [ ! -f "artisan" ] && [ ! -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
-    echo "📥 Projek JAGOAN belum ditemukan di folder ini."
-    echo "📦 Memulai Git Clone otomatis dari GitHub (YogaVanHalen/JAGOAN)..."
+# 4. Clone Kode Aplikasi jika belum ada di folder target
+if [ ! -f "artisan" ]; then
+    echo "📥 Mengunduh / Git Clone kode aplikasi ke $PROJECT_DIR..."
     git init 2>/dev/null
     git remote add origin https://github.com/YogaVanHalen/JAGOAN.git 2>/dev/null || git remote set-url origin https://github.com/YogaVanHalen/JAGOAN.git
     git fetch origin main
     git checkout -B main origin/main -f
-fi
-
-# Jika script dijalankan dari dalam subfolder (misal subfolder "JAGOAN" atau nama lain)
-# dan folder parent bukan /www/wwwroot dan belum memiliki file artisan, pindahkan ke Root Domain
-if [ "$SCRIPT_DIR" != "$PARENT_DIR" ] && [ "$PARENT_DIR" != "/www/wwwroot" ] && [ "$PARENT_DIR" != "/www/wwwroot/" ] && [ -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
-    echo "📁 Mendeteksi script dijalankan dari subfolder '$CURRENT_FOLDER'."
-    echo "🚚 Memindahkan seluruh isi ke Root Domain ($PARENT_DIR)..."
-    
-    # Hapus file bawaan aaPanel di folder parent
-    chattr -i "$PARENT_DIR/.user.ini" "$PARENT_DIR/public/.user.ini" 2>/dev/null
-    rm -f "$PARENT_DIR/index.html" "$PARENT_DIR/404.html" "$PARENT_DIR/.user.ini" "$PARENT_DIR/default" 2>/dev/null
-    
-    # Aktifkan dotglob untuk ikut memindahkan file tersembunyi seperti .env dan .git
-    shopt -s dotglob
-    mv "$SCRIPT_DIR"/* "$PARENT_DIR"/ 2>/dev/null
-    shopt -u dotglob
-    
-    cd "$PARENT_DIR" || exit 1
-    rm -rf "$SCRIPT_DIR" 2>/dev/null
-    PROJECT_DIR="$PARENT_DIR"
-else
-    cd "$SCRIPT_DIR" || exit 1
-    PROJECT_DIR="$SCRIPT_DIR"
 fi
 
 echo "📍 Lokasi Aktif Instalasi: $PROJECT_DIR"

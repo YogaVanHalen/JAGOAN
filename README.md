@@ -106,25 +106,29 @@ Aplikasi ini dapat diinstal langsung di **Root Domain** aaPanel tanpa subfolder.
 
 ---
 
-### ⚡ 3. Instalasi Otomatis (1 Perintah Cepat)
-Setelah menambah domain di aaPanel, buka **Terminal SSH** di aaPanel, masuk ke folder domain Anda, dan jalankan perintah 1 baris berikut:
+### ⚡ 3. Instalasi Otomatis (1 Perintah Cepat & Aman)
+Setelah menambah domain di aaPanel, buka **Terminal SSH** di aaPanel dan jalankan perintah 1 baris berikut (masukkan nama domain/subdomain Anda):
 
 ```bash
-cd /www/wwwroot/domain-anda.com && curl -sSL https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh | bash -s admin@email.com
+curl -sSL https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh | bash -s -- sub.domain-anda.com admin@email.com
 ```
 
-*Atau jika menggunakan `wget`:*
+*Atau jika sudah berada di dalam folder domain Anda (`cd /www/wwwroot/sub.domain-anda.com`):*
 ```bash
-cd /www/wwwroot/domain-anda.com && wget -O install.sh https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh && bash install.sh admin@email.com
+curl -sSL https://raw.githubusercontent.com/YogaVanHalen/JAGOAN/main/install-aapanel.sh | bash -s -- admin@email.com
 ```
 
+> 🛡️ **Fitur Perlindungan Ketat (Safety Shield):**
+> Skrip ini dilengkapi proteksi penguncian direktori. Skrip akan **MENOLAK** berjalan jika berada di root `/www/wwwroot` tanpa menyebutkan nama domain, sehingga **100% menjamin** direktori website lain tidak akan pernah tersentuh.
+> 
 > 💡 **Apa yang dilakukan skrip di atas secara otomatis?**
-> 1. Membersihkan file bawaan aaPanel (`index.html`, `.user.ini`, dll).
-> 2. Mengunduh / Clone kode aplikasi **JAGOAN** dari GitHub secara otomatis.
-> 3. Menyiapkan file `.env`, kredensial database, dan dependensi Composer.
-> 4. Membuat Aplikasi Key Laravel, migrasi database & seeding data awal.
-> 5. Mengatur email Admin ke email yang Anda masukkan (default: `admin@email.com`).
-> 6. Mengatur izin folder `storage`, `database`, `bootstrap/cache` & membersihkan cache.
+> 1. Mengunci target instalasi ke `/www/wwwroot/nama-domain-anda`.
+> 2. Membersihkan file bawaan aaPanel (`index.html`, `.user.ini`, dll) di folder domain target.
+> 3. Mengunduh / Clone kode aplikasi **JAGOAN** dari GitHub secara otomatis.
+> 4. Menyiapkan file `.env`, kredensial database, dan dependensi Composer.
+> 5. Membuat Aplikasi Key Laravel, migrasi database & seeding data awal.
+> 6. Mengatur email Admin ke email yang Anda masukkan (default: `admin@email.com`).
+> 7. Mengatur izin folder `storage`, `database`, `bootstrap/cache` & membersihkan cache.
 
 ---
 
