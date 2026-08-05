@@ -93,19 +93,66 @@ fi
 # Pastikan APP_DEBUG=true agar error detail muncul di layar
 sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' .env
 
-# Set Kredensial Database MySQL
-echo "⚙️ Mengkonfigurasi Kredensial MySQL (.env)..."
+# Prompt Kredensial Database & Turnstile secara Manual/Interaktif
+TTY="/dev/tty"
+if [ ! -c /dev/tty ]; then
+    TTY=""
+fi
+
+prompt_input() {
+    local prompt_msg="$1"
+    local default_val="$2"
+    local result_var="$3"
+    
+    if [ -n "$TTY" ]; then
+        echo -n "$prompt_msg [$default_val]: " > "$TTY"
+        read user_input < "$TTY"
+        if [ -z "$user_input" ]; then
+            eval "$result_var=\"$default_val\""
+        else
+            eval "$result_var=\"$user_input\""
+        fi
+    else
+        eval "$result_var=\"$default_val\""
+    fi
+}
+
+echo "-------------------------------------------------------"
+echo "⚙️ PENGATURAN KREDENSIAL DATABASE MYSQL & TURNSTILE"
+echo "-------------------------------------------------------"
+prompt_input "🗄️ Nama Database MySQL" "jagoan" DB_NAME
+prompt_input "👤 Username Database MySQL" "jagoan" DB_USER
+prompt_input "🔑 Password Database MySQL" "k8R6CrryGw3xtjK2" DB_PASS
+echo ""
+prompt_input "🛡️ Cloudflare Turnstile Site Key (Tekan Enter jika kosong)" "" TURNSTILE_SITE_KEY
+prompt_input "🛡️ Cloudflare Turnstile Secret Key (Tekan Enter jika kosong)" "" TURNSTILE_SECRET_KEY
+echo "-------------------------------------------------------"
+
+# Set Kredensial Database MySQL & Turnstile ke file .env
+echo "⚙️ Mengkonfigurasi Kredensial Database & Key (.env)..."
 sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/g' .env
 sed -i 's/# DB_HOST=.*/DB_HOST=127.0.0.1/g' .env
 sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' .env
 sed -i 's/# DB_PORT=.*/DB_PORT=3306/g' .env
 sed -i 's/DB_PORT=.*/DB_PORT=3306/g' .env
-sed -i 's/# DB_DATABASE=.*/DB_DATABASE=jagoan/g' .env
-sed -i 's/DB_DATABASE=.*/DB_DATABASE=jagoan/g' .env
-sed -i 's/# DB_USERNAME=.*/DB_USERNAME=jagoan/g' .env
-sed -i 's/DB_USERNAME=.*/DB_USERNAME=jagoan/g' .env
-sed -i 's/# DB_PASSWORD=.*/DB_PASSWORD=k8R6CrryGw3xtjK2/g' .env
-sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=k8R6CrryGw3xtjK2/g' .env
+
+sed -i "s/# DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" .env
+sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" .env
+sed -i "s/# DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" .env
+sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" .env
+sed -i "s/# DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" .env
+sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" .env
+
+# Inject atau Update Cloudflare Turnstile Keys di .env
+if ! grep -q "TURNSTILE_SITE_KEY" .env; then
+    echo "" >> .env
+    echo "# Cloudflare Turnstile Keys" >> .env
+    echo "TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY" >> .env
+    echo "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY" >> .env
+else
+    sed -i "s|TURNSTILE_SITE_KEY=.*|TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY|g" .env
+    sed -i "s|TURNSTILE_SECRET_KEY=.*|TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY|g" .env
+fi
 
 # 2. Install Dependensi PHP via Composer
 echo "📦 Menginstall dependensi Composer (Vendor)..."
