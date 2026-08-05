@@ -123,13 +123,50 @@ php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
+# 7. Otomatisasi Konfigurasi Web Server aaPanel (Nginx / Apache / OpenLiteSpeed)
+SITE_DOMAIN="$(basename "$PROJECT_DIR")"
+NGINX_VHOST="/www/server/panel/vhost/nginx/${SITE_DOMAIN}.conf"
+NGINX_REWRITE="/www/server/panel/vhost/rewrite/${SITE_DOMAIN}.conf"
+APACHE_VHOST="/www/server/panel/vhost/apache/${SITE_DOMAIN}.conf"
+OLS_VHOST="/www/server/panel/vhost/openlitespeed/${SITE_DOMAIN}.conf"
+
+echo "🌐 Memeriksa & Mengonfigurasi Web Server aaPanel..."
+
+# Konfigurasi Nginx
+if [ -f "$NGINX_VHOST" ]; then
+    echo "🔧 Mengatur Nginx Running Directory ke /public & Laravel Rewrite..."
+    sed -i "s|root $PROJECT_DIR;|root $PROJECT_DIR/public;|g" "$NGINX_VHOST" 2>/dev/null
+    sed -i "s|root $PROJECT_DIR/;|root $PROJECT_DIR/public;|g" "$NGINX_VHOST" 2>/dev/null
+    
+    if [ -f "$NGINX_REWRITE" ]; then
+        echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    fi
+    nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || service nginx reload 2>/dev/null || true
+fi
+
+# Konfigurasi Apache
+if [ -f "$APACHE_VHOST" ]; then
+    echo "🔧 Mengatur Apache DocumentRoot ke /public..."
+    sed -i "s|DocumentRoot \"$PROJECT_DIR\"|DocumentRoot \"$PROJECT_DIR/public\"|g" "$APACHE_VHOST" 2>/dev/null
+    sed -i "s|<Directory \"$PROJECT_DIR\">|<Directory \"$PROJECT_DIR/public\">|g" "$APACHE_VHOST" 2>/dev/null
+    systemctl reload httpd 2>/dev/null || systemctl reload apache2 2>/dev/null || service httpd reload 2>/dev/null || true
+fi
+
+# Konfigurasi OpenLiteSpeed
+if [ -f "$OLS_VHOST" ]; then
+    echo "🔧 Mengatur OpenLiteSpeed docRoot ke /public..."
+    sed -i "s|docRoot                   $PROJECT_DIR|docRoot                   $PROJECT_DIR/public|g" "$OLS_VHOST" 2>/dev/null
+    /usr/local/lsws/bin/lswsctrl reload 2>/dev/null || systemctl reload lsws 2>/dev/null || true
+fi
+
 echo "======================================================="
 echo "🎉 INSTALASI JAGOAN BERHASIL DISLESAIKAN!             "
 echo "======================================================="
-echo "⚠️  PENGATURAN TERAKHIR DI AAPANEL:"
+echo "⚠️  PENGATURAN TERAKHIR DI AAPANEL (JIKA BELUM OTOMATIS):"
 echo " 1. Masuk ke aaPanel -> Website -> Klik Domain Anda"
 echo " 2. Di tab 'Site directory': Set Site directory ke: $PROJECT_DIR"
 echo " 3. Di tab 'Site directory': Set Running directory ke: /public"
-echo " 4. Di tab 'URL rewrite': Pilih preset 'laravel'"
-echo " 5. Buka domain Anda di browser untuk menggunakan aplikasi!"
+echo " 4. Di tab 'Site directory': Hapus centang 'Anti-user-site-executive (open_basedir)'"
+echo " 5. Di tab 'URL rewrite': Pilih preset 'laravel'"
+echo " 6. Buka domain Anda di browser untuk menggunakan aplikasi!"
 echo "======================================================="
