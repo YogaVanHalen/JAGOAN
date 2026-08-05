@@ -10,12 +10,22 @@ echo "======================================================="
 
 # Dapatkan lokasi script saat ini
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 CURRENT_FOLDER="$(basename "$SCRIPT_DIR")"
 
-# Jika script dijalankan dari dalam subfolder "JAGOAN", pindahkan semua file 1 tingkat ke atas (Root Domain)
-if [ "$CURRENT_FOLDER" == "JAGOAN" ] || [ "$CURRENT_FOLDER" == "jagoan" ]; then
-    PARENT_DIR="$(dirname "$SCRIPT_DIR")"
-    echo "📁 Mendeteksi folder '$CURRENT_FOLDER'. Memindahkan seluruh isi ke Root Domain ($PARENT_DIR)..."
+# Hapus file placeholder bawaan aaPanel jika ada di folder saat ini
+chattr -i .user.ini public/.user.ini 2>/dev/null
+rm -f index.html 404.html .user.ini public/.user.ini 2>/dev/null
+
+# Jika script dijalankan dari dalam subfolder (misal subfolder "JAGOAN" atau nama lain)
+# dan folder parent belum memiliki file artisan (bukan root Laravel), pindahkan ke Root Domain
+if [ "$SCRIPT_DIR" != "$PARENT_DIR" ] && [ -f "$SCRIPT_DIR/artisan" ] && [ ! -f "$PARENT_DIR/artisan" ]; then
+    echo "📁 Mendeteksi script dijalankan dari subfolder '$CURRENT_FOLDER'."
+    echo "🚚 Memindahkan seluruh isi ke Root Domain ($PARENT_DIR)..."
+    
+    # Hapus file bawaan aaPanel di folder parent
+    chattr -i "$PARENT_DIR/.user.ini" "$PARENT_DIR/public/.user.ini" 2>/dev/null
+    rm -f "$PARENT_DIR/index.html" "$PARENT_DIR/404.html" "$PARENT_DIR/.user.ini" "$PARENT_DIR/default" 2>/dev/null
     
     # Aktifkan dotglob untuk ikut memindahkan file tersembunyi seperti .env dan .git
     shopt -s dotglob

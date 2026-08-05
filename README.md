@@ -107,12 +107,25 @@ Aplikasi ini dapat diinstal langsung di **Root Domain** aaPanel tanpa subfolder.
 ---
 
 ### 📥 3. Clone Kode dari GitHub
-Buka **Terminal SSH** di aaPanel:
+Buka **Terminal SSH** di aaPanel, masuk ke folder situs Anda, hapus file bawaan aaPanel (`index.html`, `.user.ini`), lalu jalankan clone:
 
 ```bash
 cd /www/wwwroot/fh.belivoucher.my.id
+chattr -i .user.ini 2>/dev/null
+rm -rf index.html 404.html .user.ini .htaccess default
 git clone https://github.com/YogaVanHalen/JAGOAN.git .
 ```
+
+> 💡 **Metode Alternatif (Jika `git clone .` gagal / Folder Sudah Terisi):**
+> Anda juga bisa menggunakan `git init` berikut (tidak akan error meskipun folder ada isinya):
+> ```bash
+> cd /www/wwwroot/fh.belivoucher.my.id
+> chattr -i .user.ini 2>/dev/null
+> git init
+> git remote add origin https://github.com/YogaVanHalen/JAGOAN.git 2>/dev/null || git remote set-url origin https://github.com/YogaVanHalen/JAGOAN.git
+> git fetch origin main
+> git checkout -B main origin/main -f
+> ```
 
 ---
 
@@ -123,7 +136,7 @@ Di Terminal SSH aaPanel, jalankan:
 bash install-aapanel.sh admin@email.com
 ```
 
-Skrip ini akan secara otomatis menyiapkan `.env`, memasang dependensi composer, menjalankan migrasi database, membuat akun Admin, serta mengonfigurasi izin folder `storage` & `bootstrap/cache`.
+Skrip ini akan secara otomatis mendeteksi jika instalasi dilakukan dari subfolder (misal `git clone` tanpa titik), memindahkan seluruh file ke Root Domain jika diperlukan, menyiapkan `.env`, memasang dependensi composer, menjalankan migrasi database, membuat akun Admin, serta mengonfigurasi izin folder `storage` & `bootstrap/cache`.
 
 ---
 
