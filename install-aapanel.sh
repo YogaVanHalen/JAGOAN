@@ -342,12 +342,7 @@ if [ -f "$NGINX_VHOST" ]; then
     mkdir -p "$(dirname "$NGINX_REWRITE")" 2>/dev/null
     echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
     
-    # 5. Uji Sintaks Nginx & Tangani Konflik Duplicate Location
-    if ! nginx -t &>/dev/null; then
-        # Hapus inline location / dari vhost utama jika konflik dengan file rewrite
-        sed -i '/location \/ {/,/}/d' "$NGINX_VHOST" 2>/dev/null
-    fi
-    
+    # 5. Reload Nginx
     nginx -t &>/dev/null && (nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true)
     log_success "Nginx Config & Rewrite : ${BOLD}Root /public & Laravel Rewrite Aktif${NC}"
 fi
