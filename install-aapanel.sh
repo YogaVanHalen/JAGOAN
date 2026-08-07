@@ -327,13 +327,28 @@ OLS_VHOST="/www/server/panel/vhost/openlitespeed/${SITE_DOMAIN}.conf"
 log_info "Memeriksa konfigurasi Web Server aaPanel..."
 
 if [ -f "$NGINX_VHOST" ]; then
+    # 1. Update Root Document ke /public
     sed -i -E "s|root\s+[^;]+;|root ${PROJECT_DIR}/public;|g" "$NGINX_VHOST" 2>/dev/null
+    
+    # 2. Update Index Directive untuk menyertakan index.php
+    if grep -q "index " "$NGINX_VHOST"; then
+        sed -i -E "s|index\s+[^;]+;|index index.php index.html index.htm;|g" "$NGINX_VHOST" 2>/dev/null
+    fi
+    
+    # 3. Hapus pembatasan open_basedir dari vhost Nginx
     sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
     
-    if [ -f "$NGINX_REWRITE" ]; then
-        echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    # 4. Tulis URL Rewrite Laravel
+    mkdir -p "$(dirname "$NGINX_REWRITE")" 2>/dev/null
+    echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    
+    # 5. Uji Sintaks Nginx & Tangani Konflik Duplicate Location
+    if ! nginx -t &>/dev/null; then
+        # Hapus inline location / dari vhost utama jika konflik dengan file rewrite
+        sed -i '/location \/ {/,/}/d' "$NGINX_VHOST" 2>/dev/null
     fi
-    nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+    
+    nginx -t &>/dev/null && (nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true)
     log_success "Nginx Config & Rewrite : ${BOLD}Root /public & Laravel Rewrite Aktif${NC}"
 fi
 

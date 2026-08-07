@@ -170,11 +170,16 @@ NGINX_REWRITE="/www/server/panel/vhost/rewrite/${SITE_DOMAIN}.conf"
 
 if [ -f "$NGINX_VHOST" ]; then
     sed -i -E "s|root\s+[^;]+;|root ${PROJECT_DIR}/public;|g" "$NGINX_VHOST" 2>/dev/null
-    sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
-    if [ -f "$NGINX_REWRITE" ]; then
-        echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    if grep -q "index " "$NGINX_VHOST"; then
+        sed -i -E "s|index\s+[^;]+;|index index.php index.html index.htm;|g" "$NGINX_VHOST" 2>/dev/null
     fi
-    nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+    sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
+    mkdir -p "$(dirname "$NGINX_REWRITE")" 2>/dev/null
+    echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    if ! nginx -t &>/dev/null; then
+        sed -i '/location \/ {/,/}/d' "$NGINX_VHOST" 2>/dev/null
+    fi
+    nginx -t &>/dev/null && (nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true)
 fi
 
 systemctl reload php-fpm-84 2>/dev/null || systemctl reload php-fpm-83 2>/dev/null || systemctl reload php-fpm-82 2>/dev/null || service php-fpm reload 2>/dev/null || true
