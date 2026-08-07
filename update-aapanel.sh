@@ -165,8 +165,20 @@ $PHP_BIN artisan config:clear >/dev/null
 $PHP_BIN artisan cache:clear >/dev/null
 log_success "Cache Laravel : ${BOLD}Dibersihkan${NC}"
 
+NGINX_VHOST="/www/server/panel/vhost/nginx/${SITE_DOMAIN}.conf"
+NGINX_REWRITE="/www/server/panel/vhost/rewrite/${SITE_DOMAIN}.conf"
+
+if [ -f "$NGINX_VHOST" ]; then
+    sed -i -E "s|root\s+[^;]+;|root ${PROJECT_DIR}/public;|g" "$NGINX_VHOST" 2>/dev/null
+    sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
+    if [ -f "$NGINX_REWRITE" ]; then
+        echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    fi
+    nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+fi
+
 systemctl reload php-fpm-84 2>/dev/null || systemctl reload php-fpm-83 2>/dev/null || systemctl reload php-fpm-82 2>/dev/null || service php-fpm reload 2>/dev/null || true
-log_success "PHP-FPM Reload : ${BOLD}Reset OPcache Berhasil${NC}"
+log_success "Web Server & PHP-FPM : ${BOLD}Root /public, Rewrite Laravel & OPcache Reset Berhasil${NC}"
 
 log_header "🎉 PROSES UPDATE JAGOAN BERHASIL DISLESAIKAN!"
 echo -e "${GREEN}✔ [STATUS OK] Aplikasi Anda telah diperbarui ke versi terbaru.${NC}\n"

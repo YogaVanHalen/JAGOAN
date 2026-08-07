@@ -327,7 +327,7 @@ OLS_VHOST="/www/server/panel/vhost/openlitespeed/${SITE_DOMAIN}.conf"
 log_info "Memeriksa konfigurasi Web Server aaPanel..."
 
 if [ -f "$NGINX_VHOST" ]; then
-    sed -i -E "s|root\s+${PROJECT_DIR}/?;|root ${PROJECT_DIR}/public;|g" "$NGINX_VHOST" 2>/dev/null
+    sed -i -E "s|root\s+[^;]+;|root ${PROJECT_DIR}/public;|g" "$NGINX_VHOST" 2>/dev/null
     sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
     
     if [ -f "$NGINX_REWRITE" ]; then
