@@ -347,17 +347,16 @@ if [ -f "$NGINX_VHOST" ]; then
         sed -i "/server_name/a \    include /www/server/panel/vhost/rewrite/${SITE_DOMAIN}.conf;" "$NGINX_VHOST" 2>/dev/null
     fi
     
-    # 6. Pastikan Handler PHP (enable-php-XX.conf) Terpasang di Vhost Nginx
+    # 6. Pastikan Handler PHP (enable-php-XX.conf) Terpasang di Vhost Nginx setelah baris root
     if ! grep -q "enable-php" "$NGINX_VHOST"; then
         PHP_ENABLE_CONF="enable-php-84.conf"
         for conf in enable-php-84.conf enable-php-83.conf enable-php-82.conf enable-php-81.conf enable-php-80.conf enable-php-74.conf; do
-            if [ -f "/www/server/panel/vhost/nginx/$conf" ] || [ -f "/www/server/nginx/conf/$conf" ]; then
+            if [ -f "/www/server/nginx/conf/$conf" ] || [ -f "/www/server/panel/vhost/nginx/$conf" ]; then
                 PHP_ENABLE_CONF="$conf"
                 break
             fi
         done
-        sed -i "/rewrite\/${SITE_DOMAIN}.conf/i \    include $PHP_ENABLE_CONF;" "$NGINX_VHOST" 2>/dev/null || \
-        sed -i "/server_name/a \    include $PHP_ENABLE_CONF;" "$NGINX_VHOST" 2>/dev/null
+        sed -i "/root /a \    include $PHP_ENABLE_CONF;" "$NGINX_VHOST" 2>/dev/null
     fi
     
     # 7. Reload Nginx
