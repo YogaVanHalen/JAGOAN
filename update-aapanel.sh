@@ -176,6 +176,9 @@ if [ -f "$NGINX_VHOST" ]; then
     sed -i '/open_basedir/d' "$NGINX_VHOST" 2>/dev/null
     mkdir -p "$(dirname "$NGINX_REWRITE")" 2>/dev/null
     echo -e "location / {\n    try_files \$uri \$uri/ /index.php?\$query_string;\n}" > "$NGINX_REWRITE" 2>/dev/null
+    if ! grep -q "rewrite/${SITE_DOMAIN}.conf" "$NGINX_VHOST"; then
+        sed -i "/server_name/a \    include /www/server/panel/vhost/rewrite/${SITE_DOMAIN}.conf;" "$NGINX_VHOST" 2>/dev/null
+    fi
     nginx -t &>/dev/null && (nginx -s reload 2>/dev/null || systemctl reload nginx 2>/dev/null || true)
 fi
 
