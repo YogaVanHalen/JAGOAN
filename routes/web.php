@@ -32,13 +32,13 @@ Route::get('/docs', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('/income', IncomeController::class);
-    Route::resource('/expense', ExpenseController::class);
-    Route::resource('/goals', GoalController::class);
+    Route::resource('/income', IncomeController::class)->except(['show']);
+    Route::resource('/expense', ExpenseController::class)->except(['show']);
+    Route::resource('/goals', GoalController::class)->except(['show']);
     Route::get('/goals/{goal}', [GoalController::class, 'show'])->name('goals.show');
     Route::post('/goals/{goal}/transactions', [GoalController::class, 'storeTransaction'])->name('goals.storeTransaction');
-    Route::resource('categories', CategoryController::class);
-    Route::resource('wallets', WalletController::class);
+    Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('wallets', WalletController::class)->except(['show']);
     Route::post('/wallets/{wallet}/members', [WalletController::class, 'addMember'])->name('wallets.addMember');
     Route::delete('/wallets/{wallet}/members/{user}', [WalletController::class, 'removeMember'])->name('wallets.removeMember');
 
@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/family-members', [WalletController::class, 'familyMembers'])->name('family.members');
     Route::post('/family-members', [WalletController::class, 'storeFamilyMember'])->name('family.members.store');
 
-    Route::resource('debts', DebtController::class);
+    Route::resource('debts', DebtController::class)->except(['show']);
     Route::post('/debts/{debt}/convert-to-goal', [DebtController::class, 'convertToGoal'])->name('debts.convertToGoal');
 
     // Settings route
