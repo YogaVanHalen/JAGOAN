@@ -17,6 +17,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ExportController;
 use App\Http\Middleware\AdminMiddleware;
 
+// Root URL: Redirect ke dashboard jika sudah login, atau ke login jika belum
+Route::get('/', function () {
+    return Auth::check() ? redirect('/dashboard') : redirect('/login');
+});
+
 Route::get('auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleController::class, 'callback']);
 Route::get('/mobile/login', [GoogleController::class, 'login']);
