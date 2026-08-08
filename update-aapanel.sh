@@ -263,17 +263,37 @@ if [ -f "$NGINX_VHOST" ] || [ -d "/www/server/panel/vhost/nginx" ]; then
         done
     fi
 
-    # Tentukan blok SSL
+    # Tentukan blok SSL (cek beberapa lokasi sertifikat aaPanel)
     SSL_BLOCK=""
-    if [ -f "${SSL_CERT_DIR}/fullchain.pem" ] && [ -f "${SSL_CERT_DIR}/privkey.pem" ]; then
+    HTTPS_REDIRECT=""
+    SSL_CERT_FULLCHAIN=""
+    SSL_CERT_PRIVKEY=""
+
+    for cert_dir in "${SSL_CERT_DIR}" "/www/server/panel/vhost/letsencrypt/${SITE_DOMAIN}"; do
+        if [ -f "${cert_dir}/fullchain.pem" ] && [ -f "${cert_dir}/privkey.pem" ]; then
+            SSL_CERT_FULLCHAIN="${cert_dir}/fullchain.pem"
+            SSL_CERT_PRIVKEY="${cert_dir}/privkey.pem"
+            break
+        fi
+    done
+
+    if [ -n "$SSL_CERT_FULLCHAIN" ]; then
         SSL_BLOCK="    listen 443 ssl http2;
-    ssl_certificate    ${SSL_CERT_DIR}/fullchain.pem;
-    ssl_certificate_key    ${SSL_CERT_DIR}/privkey.pem;
+    ssl_certificate    ${SSL_CERT_FULLCHAIN};
+    ssl_certificate_key    ${SSL_CERT_PRIVKEY};
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
     ssl_prefer_server_ciphers on;
     ssl_session_timeout 10m;
     ssl_session_cache shared:SSL:10m;"
+        HTTPS_REDIRECT="
+    # Force HTTPS redirect
+    if (\$server_port !~ 443){
+        rewrite ^(/.*)$ https://\$host\$1 permanent;
+    }"
+        # Update APP_URL ke https
+        sed -i "s|APP_URL=http://${SITE_DOMAIN}|APP_URL=https://${SITE_DOMAIN}|g" .env 2>/dev/null
+        log_info "SSL Certificate : ${BOLD}Terdeteksi, HTTPS + Auto-Redirect aktif${NC}"
     fi
 
     # Tulis Rewrite file Laravel
@@ -293,6 +313,7 @@ ${SSL_BLOCK}
     server_name ${SITE_DOMAIN};
     index index.php index.html index.htm;
     root ${PROJECT_DIR}/public;
+${HTTPS_REDIRECT}
 
     # PHP Handler (aaPanel managed)
     include ${PHP_ENABLE_CONF};
